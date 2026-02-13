@@ -1,0 +1,3 @@
+mynotes.txt
+terraform/*.tfvars
+terraform/.terraform/
