@@ -16,9 +16,9 @@ on:
         required: true
         type: choice # Dropdown menu (not free text)
         options:
-          - DEV
-          - TEST
-          - PROD
+          - dev
+          - test
+          - prod
 
 jobs:
   deploy: # A workflow can have multiple jobs (we have one: deploy). Name of this job (you can call it anything)
