@@ -1,0 +1,40 @@
+Complete Flow Summary
+When you click "Run workflow" with version=v1.1.0, environment=test:
+
+✅ Checks out code at tag v1.1.0
+✅ Installs Python 3.11
+✅ Installs your app dependencies
+✅ Runs tests (fails → stops here if tests fail)
+✅ Logs into Azure
+✅ Installs Terraform
+✅ Initializes Terraform
+✅ Plans infrastructure for "test" environment with v1.1.0
+✅ Creates/updates Azure resources
+✅ Gets App Service name: "app-todo-app-test"
+✅ Deploys v1.1.0 code to that App Service
+✅ Updates deployment-history.md
+✅ Commits and pushes history
+
+Think about, on a high level:
+
+# 1. Get the code
+git clone repo
+git checkout v1.0.0
+
+# 2. Test it locally
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pytest tests/
+
+# 3. Login to Azure
+az login
+
+# 4. Create infrastructure
+cd terraform
+terraform init
+terraform plan
+terraform apply
+
+# 5. Deploy code
+az webapp up --name app-todo-app-dev
