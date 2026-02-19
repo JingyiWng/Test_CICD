@@ -2,7 +2,7 @@ variable "environment" {
   description = "Environment name (dev, test, prod)"
   type        = string
   validation {
-    condition     = contains(["DEV", "TEST", "PROD"], var.environment)
+    condition     = contains(["dev", "test", "prod"], var.environment)
     error_message = "Environment must be dev, test, or prod."
   }
 }
@@ -22,7 +22,7 @@ variable "location" {
 variable "app_name" {
   description = "Base application name"
   type        = string
-  default     = "todo_app"
+  default     = "todo-app"
 }
 
 variable "subscription_id" {
