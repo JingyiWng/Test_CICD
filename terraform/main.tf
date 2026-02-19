@@ -57,6 +57,11 @@ resource "azurerm_linux_web_app" "webapp" {
       python_version = "3.11"
     }
 
+    # Startup command. Azure defaults to looking for Flask apps (app.py), not FastAPI. 
+    # We set this up, so that Azure knows HOW to start your FastAPI app
+    # uvicorn app.main:app starts FastAPI with uvicorn server. --host 0.0.0.0 allows external connections. --port 8000 matches Azure's expected port
+    app_command_line = "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
     # Health check endpoint
     health_check_path = "/health"
   }
