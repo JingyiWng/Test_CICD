@@ -1,4 +1,12 @@
 mynotes.txt
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfplan
+terraform/terraform.tfvars
 terraform/*.tfvars
 terraform/.terraform/
 terraform/*.backup
@@ -6,3 +14,17 @@ terraform/terraform.tfstate.d/prod/*.backup
 terraform/terraform.tfstate.d/test/*.backup
 terraform/tfstate-backup*
 archive/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
