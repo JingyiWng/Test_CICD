@@ -1,3 +1,8 @@
 mynotes.txt
 terraform/*.tfvars
 terraform/.terraform/
+terraform/*.backup
+terraform/terraform.tfstate.d/prod/*.backup
+terraform/terraform.tfstate.d/test/*.backup
+terraform/tfstate-backup*
+archive/
