@@ -35,6 +35,57 @@ A --- B --- C --- D --- E  (develop branch)
     v1.0.0      v1.1.0  ← Tags point to specific commits
 
 
+## **Where Tags Are Actually Created:**
+develop branch:
+  └─ (optional) dev-v1.3.0  ← Development milestone
+
+release/1.2.0 branch:
+  └─ v1.2.0-rc  ← When merged to test
+
+test branch:
+  └─ (v1.2.0-rc already exists from release branch)
+
+main branch:
+  └─ v1.2.0  ← Official release tag ✅
+
+Tagging Workflow:
+- 1. Develop in develop (no tag yet)
+git checkout develop
+... work on v1.2.0 ...
+
+- 2. Create release branch (optional tag)
+git checkout -b release/1.2.0
+git tag v1.2.0-rc
+git push origin release/1.2.0 --tags
+
+- 3. Deploy to TEST
+git checkout test
+git merge release/1.2.0
+git push origin test
+
+- 4. After testing passes, deploy to PROD
+git checkout main
+git merge release/1.2.0
+git tag v1.2.0  # ← Official tag on main
+git push origin main --tags
+
+- 5. Optional: Clean up release branch
+git branch -d release/1.2.0
+git push origin --delete release/1.2.0
+
+Benefits:
+
+✅ test branch always shows what's in TEST
+✅ Can delete release branches after merging
+✅ Cleaner branch list
+✅ Standard industry pattern
+✅ Easy rollback: To revert test to previous version
+   git checkout test
+   git reset --hard HEAD~1
+   git push --force origin test
+
+
+
 Running Terraform
     cd terraform
     terraform init
