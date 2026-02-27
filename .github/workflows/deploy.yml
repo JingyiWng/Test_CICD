@@ -1,39 +1,69 @@
 name: Deploy Todo API
 
 on:
-  workflow_dispatch: #Means "manual trigger only" (you click a button to run it)
-  # Alternative triggers:
-    # push: - runs on git push
-    # pull_request: - runs on PR creation
-    # schedule: - runs on a schedule (cron)
-    inputs:
-      version:
-        description: 'Version tag to deploy (e.g., v1.0.0)'
-        required: true
-        type: string
-      environment:
-        description: 'Target environment'
-        required: true
-        type: choice # Dropdown menu (not free text)
-        options:
-          - dev
-          - test
-          - prod
+  push:
+    branches:
+      - develop  # → DEV
+      - 'release/**'  # → TEST
+      - main     # → PROD
+  # workflow_dispatch: #Means "manual trigger only" (you click a button to run it)
+  # # Alternative triggers:
+  #   # push: - runs on git push
+  #   # pull_request: - runs on PR creation
+  #   # schedule: - runs on a schedule (cron)
+  #   inputs:
+  #     version:
+  #       description: 'Version tag to deploy (e.g., v1.0.0)'
+  #       required: true
+  #       type: string
+  #     environment:
+  #       description: 'Target environment'
+  #       required: true
+  #       type: choice # Dropdown menu (not free text)
+  #       options:
+  #         - dev
+  #         - test
+  #         - prod
 
 jobs:
   deploy: # A workflow can have multiple jobs (we have one: deploy). Name of this job (you can call it anything)
-    name: Deploy to ${{ inputs.environment }} # Display name for the job
+    name: Deploy to Azure # Display name for the job
     runs-on: ubuntu-latest # GitHub provides hosted runners (virtual machines)
-    environment: ${{ inputs.environment }}
+    environment: >-
+      ${{
+        (github.ref == 'refs/heads/main' && 'prod') ||
+        (startsWith(github.ref, 'refs/heads/release/') && 'test') ||
+        'dev'
+      }}
     
     steps:
-      # Step 1: Checkout the specific version tag
+      # Step 0: 
+      - name: Determine environment
+        id: set-env
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            ENV="prod"
+          elif [[ "${GITHUB_REF}" == refs/heads/release/* ]]; then
+            ENV="test"
+          elif [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            ENV="dev"
+          else
+            echo "Error: Cannot deploy from branch ${GITHUB_REF}"
+            echo "Allowed branches: develop, release/*, main"
+            exit 1
+          fi
+          
+          echo "environment=${ENV}" >> $GITHUB_OUTPUT
+          echo "Deploying to: ${ENV}"
+
+      # Step 1: Checkout code
       # Downloads your repository code into the runner (VM), Like doing git clone + git checkout v1.0.0
       - name: Checkout code 
       # Uses a pre-built action from GitHub marketplace
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.version }}
+          # ref: ${{ inputs.version }}
+          ref: ${{ github.ref }}
       
       # Step 2: Set up Python
       # Installs Python 3.11 on the runner, Like running apt-get install python3.11
@@ -55,6 +85,14 @@ jobs:
         run: |
           pip install pytest
           pytest tests/ -v
+
+      # Step 5: Get version from code
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep "VERSION = " app/config.py | cut -d'"' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Deploying version: $VERSION"
       
       # Step 5: Azure Login
       # Authenticates with Azure using Service Principal. Like running az login but with automation credentials
@@ -81,8 +119,8 @@ jobs:
         run: |
           terraform plan \
             -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
-            -var="environment=${{ inputs.environment }}" \
-            -var="app_version=${{ inputs.version }}" \
+            -var="environment=${{ steps.set-env.outputs.environment }}" \
+            -var="app_version=${{ steps.version.outputs.version }}" \
             -out=tfplan
       
       # Step 9: Terraform Apply
@@ -114,7 +152,7 @@ jobs:
       - name: Update Deployment History
         run: |
           echo "## $(date '+%Y-%m-%d %H:%M:%S')" >> deployment-history.md
-          echo "- **${{ inputs.environment }}**: Deployed ${{ inputs.version }}" >> deployment-history.md
+          echo "- **${{ steps.set-env.outputs.environment }}**: Deployed ${{ steps.version.outputs.version }}" >> deployment-history.md
           echo "" >> deployment-history.md
       
       # Step 13: Commit deployment history (optional)
@@ -126,5 +164,5 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add deployment-history.md
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update deployment history: ${{ inputs.environment }} -> ${{ inputs.version }}"
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update deployment history: ${{ steps.set-env.outputs.environment }} -> ${{ steps.version.outputs.version }}"
           git push

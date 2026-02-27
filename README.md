@@ -23,6 +23,19 @@ Plus a deployment-history.md file in repo tracking all deployments.
 Instead of merging branches, we deploy specific tags to specific environments.
 
 
+**Most companies use ONE of these:**
+
+### **Pattern 1: GitFlow (with release branches)**
+develop → release/1.4.0 → main
+   ↓            ↓           ↓
+  DEV         TEST        PROD
+
+### **Pattern 2: Trunk-based (no release branches)**
+develop → staging → main
+   ↓         ↓       ↓
+  DEV      TEST    PROD
+
+
 Tag and What It Contains
 v1.0.0 Python app + tests empty folder (Phase 1)
 v1.1.0 Python app + tests empty folder + Terraform (Phase 2) NO Python code deployed ❌
@@ -42,9 +55,6 @@ develop branch:
 release/1.2.0 branch:
   └─ v1.2.0-rc  ← When merged to test
 
-test branch:
-  └─ (v1.2.0-rc already exists from release branch)
-
 main branch:
   └─ v1.2.0  ← Official release tag ✅
 
@@ -58,31 +68,48 @@ git checkout -b release/1.2.0
 git tag v1.2.0-rc
 git push origin release/1.2.0 --tags
 
-- 3. Deploy to TEST
-git checkout test
-git merge release/1.2.0
-git push origin test
-
-- 4. After testing passes, deploy to PROD
+- 3. After testing passes, deploy to PROD
 git checkout main
 git merge release/1.2.0
 git tag v1.2.0  # ← Official tag on main
 git push origin main --tags
 
-- 5. Optional: Clean up release branch
-git branch -d release/1.2.0
-git push origin --delete release/1.2.0
 
-Benefits:
 
-✅ test branch always shows what's in TEST
-✅ Can delete release branches after merging
-✅ Cleaner branch list
-✅ Standard industry pattern
-✅ Easy rollback: To revert test to previous version
-   git checkout test
-   git reset --hard HEAD~1
-   git push --force origin test
+
+
+## **Scenario: Bug found in TEST**
+develop: v1.5.0 features (ahead)
+release/1.4.0: v1.4.0 (in TEST, has bug)
+You found a bug in v1.4.0 while testing. What do you do?
+# 1. Fix bug in release branch
+git checkout release/1.4.0
+# ... fix the bug ...
+git commit -m "Fix critical bug in v1.4.0"
+git push origin release/1.4.0
+# → Auto-deploys to TEST (re-test the fix)
+
+# 2. Update tag (optional)
+git tag -f v1.4.0-rc2  # New release candidate
+git push origin v1.4.0-rc2 --force
+
+# 3. Re-test in TEST environment
+# ... testing ...
+
+# 4. After testing passes, merge to main
+git checkout main
+git merge release/1.4.0
+git tag v1.4.0
+git push origin main --tags
+# → Deploys to PROD
+
+# 5. IMPORTANT: Merge fix back to develop
+git checkout develop
+git merge release/1.4.0  # Bring the bug fix to develop
+# Or cherry-pick specific commits:
+git cherry-pick <commit-hash-of-bug-fix>
+git push origin develop
+
 
 
 
