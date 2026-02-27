@@ -111,6 +111,12 @@ jobs:
       # Installs Terraform CLI. Like downloading from terraform.io
       - name: Terraform Init
         working-directory: ./terraform #Like doing cd terraform && terraform init
+        env:
+          # These environment variables authenticate Terraform with Azure backend
+          ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).tenantId }}
         # Map 'dev' environment to 'default' workspace. Otherwise, prod, or test
         run: |
           terraform init
@@ -125,6 +131,12 @@ jobs:
       # Step 8: Terraform Plan
       - name: Terraform Plan
         working-directory: ./terraform
+        env:
+          # These environment variables authenticate Terraform with Azure backend
+          ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).tenantId }}
         run: |
           terraform plan \
             -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }}" \
@@ -135,6 +147,12 @@ jobs:
       # Step 9: Terraform Apply
       - name: Terraform Apply
         working-directory: ./terraform
+        env:
+          # These environment variables authenticate Terraform with Azure backend
+          ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).tenantId }}
         run: terraform apply -auto-approve tfplan
       
       # Step 10: Get App Service name from Terraform output
@@ -143,6 +161,12 @@ jobs:
         working-directory: ./terraform
         # Gets the output value we defined in `outputs.tf`. `-raw` means no quotes, just the value
         # Stores the value in a special file
+        env:
+          # These environment variables authenticate Terraform with Azure backend
+          ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).clientId }}
+          ARM_CLIENT_SECRET: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).clientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_SERV_PRINCIPAL).tenantId }}
         run: |
           APP_NAME=$(terraform output -raw app_service_name)
           echo "app_name=$APP_NAME" >> $GITHUB_OUTPUT
