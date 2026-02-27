@@ -111,7 +111,16 @@ jobs:
       # Installs Terraform CLI. Like downloading from terraform.io
       - name: Terraform Init
         working-directory: ./terraform #Like doing cd terraform && terraform init
-        run: terraform init
+        # Map 'dev' environment to 'default' workspace. Otherwise, prod, or test
+        run: |
+          terraform init
+          if [[ "${{ steps.set-env.outputs.environment }}" == "dev" ]]; then
+            WORKSPACE="default"
+          else
+            WORKSPACE="${{ steps.set-env.outputs.environment }}"
+          fi
+          terraform workspace select $WORKSPACE || terraform workspace new $WORKSPACE
+
       
       # Step 8: Terraform Plan
       - name: Terraform Plan
