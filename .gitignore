@@ -1,5 +1,3 @@
-mynotes.txt
-
 # Terraform
 terraform/.terraform/
 terraform/.terraform.lock.hcl
@@ -28,3 +26,7 @@ env/
 .vscode/
 .idea/
 *.swp
+
+# Others
+mynotes.txt
+.github/workflows/*.txt
