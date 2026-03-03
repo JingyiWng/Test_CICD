@@ -225,27 +225,27 @@ az webapp list --query "[?contains(name, 'todo-api')]" --output table
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              GitHub Runner (Ubuntu VM)                   │
+│              GitHub Runner (Ubuntu VM)                  │
 ├─────────────────────────────────────────────────────────┤
-│  ✅ Checkout code                                        │
-│  ✅ Install Python & dependencies                        │
-│  ✅ Run tests                                            │
-│  ✅ Login to Azure (authenticate)                        │
-│  ✅ Install Terraform                                    │
-│  ✅ Run terraform init / plan / apply                    │
+│  ✅ Checkout code                                       │
+│  ✅ Install Python & dependencies                       │
+│  ✅ Run tests                                           │
+│  ✅ Login to Azure (authenticate)                       │
+│  ✅ Install Terraform                                   │
+│  ✅ Run terraform init / plan / apply                   │
 │     └─> Makes API calls to Azure to create resources    │
-│  ✅ Deploy code to Azure                                 │
+│  ✅ Deploy code to Azure                                │
 │     └─> Uploads code to Azure App Service               │
 └──────────────────────────┬──────────────────────────────┘
                            │  API calls & file uploads
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│                     Azure Cloud                          │
+│                     Azure Cloud                         │
 ├─────────────────────────────────────────────────────────┤
-│  ✅ Resource Group      (created by Terraform)           │
-│  ✅ App Service Plan    (created by Terraform)           │
-│  ✅ App Service         (created by Terraform)           │
-│  ✅ My Python app     (uploaded by GitHub Actions)     │
+│  ✅ Resource Group      (created by Terraform)          │
+│  ✅ App Service Plan    (created by Terraform)          │
+│  ✅ App Service         (created by Terraform)          │
+│  ✅ My Python app     (uploaded by GitHub Actions)      │
 │     └─> RUNS HERE 24/7                                  │
 └─────────────────────────────────────────────────────────┘
 ```
