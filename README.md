@@ -32,8 +32,11 @@ Upon approval (configured in Github Environments), deployment will happen in the
 - Step 4: Manual Deployment Workflow in Dev. Deliverable: Manual deployment workflow ready (manual trigger workflow_dispatch in file .github/workflows/deploy.yml)
 - Step 5: Automated Deployment in Dev. Deliverable: Automated deployment workflow ready (trigger based on push to branch)<br>
 #### **Phase 4: Version Management (Week 4)**
-- Step 6: Multi-Version Workflow. E.g. dev is v1.5.0, test and prod are v1.4.0.
+- Step 6: Multi-Version Workflow. E.g. dev is v1.5.0, test and prod are v1.4.0.<br>
 
+Below, I will cover some important areas/topics around my CI/CD implementation. <br>
+Note that there are multiple ways to implement tagging / branching workflows (e.g. gitflow, trunk-based workflows).  <br>
+The solution I used below is one of the many possible ways. Happy to hear any feedback or comments.
 
 ## Topic 1: Which branch -> which environment
 dev environment (develop branch)→ auto-deploy, no approval<br>
